@@ -28,8 +28,6 @@ public class OrderServiceImpl implements OrderService {
     @Value("${alpaca.data.url}")
     private String currentData;
 
-    private String executionPrice;
-
     @Autowired
     private final RestTemplate restTemplate;
 
@@ -115,6 +113,7 @@ public class OrderServiceImpl implements OrderService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(order, headers);
         response = restTemplate.postForEntity(url + "/orders", entity, Map.class);
 
+        log.info("Buy Order placed " + response);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Failed to place bracket order");
         }
@@ -153,6 +152,7 @@ public class OrderServiceImpl implements OrderService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(order, headers);
         response = restTemplate.postForEntity(url + "/orders", entity, Map.class);
 
+        log.info("Sell Order placed " + response);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Failed to place bracket sell order");
         }

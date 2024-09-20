@@ -14,6 +14,6 @@ public class OrderController {
 
     @PostMapping("/order")
     public String placeOrder(@RequestBody OrderRequest orderRequest) {
-        return "Order id : " + orderService.placeOrder(orderRequest);
+        return "Order details : " + orderService.placeOrder(orderRequest);
     }
 }
