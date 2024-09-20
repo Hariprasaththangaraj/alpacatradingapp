@@ -4,5 +4,10 @@ alpaca:
     secret: "VZ0MyT6lhgsBaeeSOKGyNEWzfwa1KfASG3wZfGKF"
   base:
     url: "https://paper-api.alpaca.markets/v2"
+  data:
+    url: "https://data.alpaca.markets"
+
+
+
 
 #account username and pwd = gemon67807@ofionk.com
