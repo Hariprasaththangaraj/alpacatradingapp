@@ -48,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         headers.set("APCA-API-KEY-ID", key);
         headers.set("APCA-API-SECRET-KEY", secret);
 
-        //   checkingCurrentMarketStatus(checkMarketStatusUrl, headers);
+        checkingCurrentMarketStatus(checkMarketStatusUrl, headers);
 
         double currentStockPrice = getCurrentStockPrice(marketDataUrl, headers);
 
@@ -89,9 +89,8 @@ public class OrderServiceImpl implements OrderService {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(mainOrder, headers);
         ResponseEntity<Map> response = restTemplate.postForEntity(url + "/orders", entity, Map.class);
-
         log.info(orderSide.substring(0, 1).toUpperCase() + orderSide.substring(1) + " Order placed: " + response.getBody());
-        if (response.getStatusCode() != HttpStatus.CREATED) {
+        if (response.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Failed to place the main order: " + response.getBody());
         }
 
@@ -134,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
         while (!isFilled && retryCount < 10) {
             try {
                 // Check the order status via API
-                ResponseEntity<Map> response = restTemplate.getForEntity(url + "/v2/orders/" + orderId, Map.class, headers);
+                ResponseEntity<Map> response = restTemplate.exchange(url + "/orders/" + orderId, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
                 String status = (String) response.getBody().get("status");
 
                 if ("filled".equalsIgnoreCase(status)) {
@@ -168,7 +167,7 @@ public class OrderServiceImpl implements OrderService {
         targetOrder.put("time_in_force", "gtc");
 
         HttpEntity<Map<String, Object>> targetEntity = new HttpEntity<>(targetOrder, headers);
-        ResponseEntity<Map> targetResponse = restTemplate.postForEntity(url + "/v2/orders", targetEntity, Map.class);
+        ResponseEntity<Map> targetResponse = restTemplate.postForEntity(url + "/orders", targetEntity, Map.class);
         log.info("Target Order placed: " + targetResponse.getBody());
 
         // Place the stop-loss order
@@ -181,7 +180,7 @@ public class OrderServiceImpl implements OrderService {
         stopLossOrder.put("time_in_force", "gtc");
 
         HttpEntity<Map<String, Object>> stopLossEntity = new HttpEntity<>(stopLossOrder, headers);
-        ResponseEntity<Map> stopLossResponse = restTemplate.postForEntity(url + "/v2/orders", stopLossEntity, Map.class);
+        ResponseEntity<Map> stopLossResponse = restTemplate.postForEntity(url + "/orders", stopLossEntity, Map.class);
         log.info("Stop Loss Order placed: " + stopLossResponse.getBody());
     }
 
@@ -222,13 +221,15 @@ public class OrderServiceImpl implements OrderService {
     // Method to get the status of a specific order (target or stop-loss)
     private String getOrderStatus(String mainOrderId, String orderType, HttpHeaders headers) {
         // Fetch the order status from the API
-        ResponseEntity<Map> response = restTemplate.getForEntity(url + "/v2/orders/" + mainOrderId + "/" + orderType, Map.class, headers);
+        String orderStatusUrl = url + "/orders/" + mainOrderId;
+
+        ResponseEntity<Map> response = restTemplate.exchange(orderStatusUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
         return (String) response.getBody().get("status");
     }
 
     // Method to cancel a specific order (target or stop-loss)
     private void cancelOrder(String mainOrderId, String orderType, HttpHeaders headers) {
-        restTemplate.delete(url + "/v2/orders/" + mainOrderId + "/" + orderType, headers);
+        restTemplate.delete(url + "/orders/" + mainOrderId + "/" + orderType, headers);
         log.info(orderType + " order cancelled.");
     }
 

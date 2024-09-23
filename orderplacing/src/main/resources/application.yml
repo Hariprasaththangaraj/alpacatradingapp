@@ -1,7 +1,7 @@
 alpaca:
   api:
-    key: "PKHS35UZWYTOKDGZMAKV"
-    secret: "VZ0MyT6lhgsBaeeSOKGyNEWzfwa1KfASG3wZfGKF"
+    key: "PKJ39KC6D6TF1JB3YJYE"
+    secret: "iWeOjR1jlfzwhPKuEaHh43v0nKlqRgXbHJPPyYjc"
   base:
     url: "https://paper-api.alpaca.markets/v2"
   data:
